@@ -4,19 +4,19 @@
     <!--begin::Form-->
     <VForm
       class="form w-100 fv-plugins-bootstrap5 fv-plugins-framework"
-      @submit="onSubmitForgotPassword"
-      id="kt_login_password_reset_form"
-      :validation-schema="forgotPassword"
+      @submit="onSubmitChangeEmail"
+      id="kt_login_email_reset_form"
+      :validation-schema="ChangeEmail"
     >
       <!--begin::Heading-->
       <div class="text-center mb-10">
         <!--begin::Title-->
-        <h1 class="text-dark mb-3">Reset Password </h1>
+        <h1 class="text-dark mb-3">Change Email </h1>
         <!--end::Title-->
 
         <!--begin::Link-->
         <div class="text-gray-400 fw-semobold fs-4">
-          Enter your Username and Email to reset your password.
+          Enter your username,password,new email and email to change your email.
         </div>
         <!--end::Link-->
       </div>
@@ -30,15 +30,31 @@
           type="username"
           placeholder=""
           name="username"
-          autocomplete="off" 
-          v-model="username"
+          autocomplete="off" v-model="username"
         />
         <div class="fv-plugins-message-container">
           <div class="fv-help-block">
             <ErrorMessage name="username" />
           </div>
         </div>
-      </div> 
+      </div>
+
+      <div class="fv-row mb-10">
+        <label class="form-label fw-bold text-gray-900 fs-6">Password</label>
+        <Field
+          class="form-control form-control-solid"
+          type="password"
+          placeholder=""
+          name="password"
+          autocomplete="off" 
+          v-model="password"
+        />
+        <div class="fv-plugins-message-container">
+          <div class="fv-help-block">
+            <ErrorMessage name="password" />
+          </div>
+        </div>
+      </div>
 
       <div class="fv-row mb-10">
         <label class="form-label fw-bold text-gray-900 fs-6">Email</label>
@@ -58,38 +74,21 @@
       </div>
 
       <div class="fv-row mb-10">
-        <label class="form-label fw-bold text-gray-900 fs-6">New Password</label>
+        <label class="form-label fw-bold text-gray-900 fs-6">New Email</label>
         <Field
           class="form-control form-control-solid"
-          type="newpassword"
+          type="email"
           placeholder=""
-          name="newpassword"
+          name="newemail"
           autocomplete="off" 
-          v-model="newpassword"
+          v-model="newemail"
         />
         <div class="fv-plugins-message-container">
           <div class="fv-help-block">
-            <ErrorMessage name="newpassword" />
+            <ErrorMessage name="newemail" />
           </div>
         </div>
-      </div> 
-
-      <div class="fv-row mb-10">
-        <label class="form-label fw-bold text-gray-900 fs-6">Confirm Your Password</label>
-        <Field
-          class="form-control form-control-solid"
-          type="confirmyourpassword"
-          placeholder=""
-          name="confirmyourpassword"
-          autocomplete="off" 
-          v-model="confirmyourpassword"
-        />
-        <div class="fv-plugins-message-container">
-          <div class="fv-help-block">
-            <ErrorMessage name="confirmyourpassword" />
-          </div>
-        </div>
-      </div> 
+      </div>
       <!--end::Input group-->
 
       <!--begin::Actions-->
@@ -126,9 +125,11 @@ import { ErrorMessage, Field, Form as VForm } from "vee-validate";
 import { useAuthStore } from "@/stores/auth";
 import * as Yup from "yup";
 import Swal from "sweetalert2/dist/sweetalert2.js";
+import router from "@/router";
+import { useRouter } from "vue-router";
 
 export default defineComponent({
-  name: "password-reset",
+  name: "email-change",
   components: {
     Field,
     VForm,
@@ -137,62 +138,66 @@ export default defineComponent({
   data() {
     return {
       username: "",
+      password: "",
       email: "",
-      newpassword: "",
-      confirmyourpassword: "",
+      newemail: "",
     };
   },
-
   setup() {
     const username = ref('');
     const email = ref('');
-    const newpassword = ref('');
-    const confirmyourpassword = ref('');
+    const password = ref('');
+    const newemail = ref('');
 
-    const store = useAuthStore();
+    // const router = useRouter();
+    // const store = useAuthStore();
 
     const submitButton = ref<HTMLButtonElement | null>(null);
 
     //Create form validation object
-    const forgotPassword = Yup.object().shape({
-      confirmyourpassword: Yup.string().min(4).required().label("Confirm Your Password"),
-      newpassword: Yup.string().min(4).required().label("New Password"),
-      email: Yup.string().email().required().label("Email"),
+    const ChangeEmail = Yup.object().shape({
       username: Yup.string().min(4).required().label("Username"),
-
+      password: Yup.string().min(4).required().label("Password"),
+      email: Yup.string().email().required().label("Email"),
+      newemail: Yup.string().email().required().label("New Email"),  
     });
 
-
     //Form submit function
-    const onSubmitForgotPassword = async (values: any) => {
+    const onSubmitChangeEmail = async (values: any) => {
       values = values as string;
       console.log('username')
+      console.log('password')
       console.log('email')
-      console.log('newpassword')
-      console.log('confirmyourpassword')
+      console.log('newemail')
 
-      submitButton.value!.disabled = true;
+      // eslint-disable-next-line
+      // submitButton.value!.disabled = true;
+      // Activate loading indicator
+      // submitButton.value?.setAttribute("data-kt-indicator", "on");
 
-      submitButton.value?.setAttribute("data-kt-indicator", "on");
+      // dummy delay
+      // Send login request
+      // await store.Email(values);
 
-      await store.forgotPassword(values);
+      //const error = Object.values(store.errors);
 
-      const error = Object.values(store.errors);
-
-      if (username !== null && email !== null && newpassword !== null && confirmyourpassword !== null) {
+      if (username !== null && email !== null && password !== null && newemail !== null) {
         Swal.fire({
-          text: "Create An Account Complete!",
+          text: "Change An Email Complete!",
           icon: "success",
           buttonsStyling: false,
-          confirmButtonText: "Next",
+          confirmButtonText: "Ok, got it!",
           heightAuto: false,
           customClass: {
             confirmButton: "btn fw-semobold btn-light-primary",
           },
+        // }).then(function () {
+        //   // Go to page after successfully login
+        //   router.push({ name: "dashboard" });
         });
       } else {
         Swal.fire({
-          text: error[0] as string,
+          text: "error",
           icon: "error",
           buttonsStyling: false,
           confirmButtonText: "Try again!",
@@ -202,20 +207,17 @@ export default defineComponent({
           },
         });
       }
-
-      submitButton.value?.removeAttribute("data-kt-indicator");
-      // // // eslint-disable-next-line
-        submitButton.value!.disabled = false;
     };
 
     return {
-      onSubmitForgotPassword,
-      forgotPassword,
+      onSubmitChangeEmail,
+      ChangeEmail,
       submitButton,
       username,
+      password,
       email,
-      newpassword,
-      confirmyourpassword,
+      newemail,
+
     };
   },
 });

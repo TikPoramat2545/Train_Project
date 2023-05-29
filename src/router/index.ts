@@ -436,6 +436,24 @@ const routes: Array<RouteRecordRaw> = [
           pageTitle: "Password reset",
         },
       },
+      {
+        path: "/password-change",
+        name: "password-change",
+        component: () =>
+          import("@/views/crafted/authentication/basic-flow/PasswordChange.vue"),
+        meta: {
+          pageTitle: "Password change",
+        },
+      },
+      {
+        path: "/email-change",
+        name: "email-change",
+        component: () =>
+          import("@/views/crafted/authentication/basic-flow/Email-Change.vue"),
+        meta: {
+          pageTitle: "Email change",
+        },
+      },
     ],
   },
   {
@@ -461,6 +479,15 @@ const routes: Array<RouteRecordRaw> = [
         },
       },
       {
+        // the 400 route, when none of the above matches
+        path: "/400",
+        name: "400",
+        component: () => import("@/views/crafted/authentication/Error400.vue"),
+        meta: {
+          pageTitle: "Error 400",
+        },
+      },
+      {
         path: "/500",
         name: "500",
         component: () => import("@/views/crafted/authentication/Error500.vue"),
@@ -481,36 +508,36 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to, from, next) => {
-  const authStore = useAuthStore();
-  const configStore = useConfigStore();
+// router.beforeEach((to, from, next) => {
+//   const authStore = useAuthStore();
+//   const configStore = useConfigStore();
 
-  // current page view title
-  document.title = `${to.meta.pageTitle} - ${import.meta.env.VITE_APP_NAME}`;
+//   // current page view title
+//   document.title = `${to.meta.pageTitle} - ${import.meta.env.VITE_APP_NAME}`;
 
-  // reset config to initial state
-  configStore.resetLayoutConfig();
+//   // reset config to initial state
+//   configStore.resetLayoutConfig();
 
-  // verify auth token before each page change
-  authStore.verifyAuth();
+//   // verify auth token before each page change
+//   authStore.verifyAuth();
 
-  // before page access check if page requires authentication
-  if (to.meta.middleware == "auth") {
-    if (authStore.isAuthenticated) {
-      next();
-    } else {
-      next({ name: "sign-in" });
-    }
-  } else {
-    next();
-  }
+//   // before page access check if page requires authentication
+//   if (to.meta.middleware == "auth") {
+//     if (authStore.isAuthenticated) {
+//       next();
+//     } else {
+//       next({ name: "sign-in" });
+//     }
+//   } else {
+//     next();  
+//   }
 
-  // Scroll page to top on every route change
-  window.scrollTo({
-    top: 0,
-    left: 0,
-    behavior: "smooth",
-  });
-});
+//   // Scroll page to top on every route change
+//   window.scrollTo({
+//     top: 0,
+//     left: 0,
+//     behavior: "smooth",
+//   });
+// });
 
 export default router;

@@ -6,17 +6,17 @@
       <div class="card card-flush w-lg-650px py-5">
         <div class="card-body py-15 py-lg-20">
           <!--begin::Title-->
-          <h1 class="fw-bolder fs-2hx text-gray-900 mb-4">Oops!</h1>
+          <h1 class="fw-bolder fs-2hx text-gray-900 mb-4">BRUHHH!</h1>
           <!--end::Title-->
           <!--begin::Text-->
           <div class="fw-semibold fs-6 text-gray-500 mb-7">
-            We can't find that page.
+            We can't find that page good luck!!.
           </div>
           <!--end::Text-->
           <!--begin::Illustration-->
           <div class="mb-3">
             <img
-              :src="getAssetPath('media/auth/404-error.png')"
+              :src="getAssetPath('media/auth/404-error-meme1.jpg')"
               class="mw-100 mh-300px theme-light-show"
               alt=""
             />
@@ -50,14 +50,14 @@ import { useBodyStore } from "@/stores/body";
 import { themeMode } from "@/core/helpers/config";
 
 export default defineComponent({
-  name: "error-404",
+  name: "error-400",
   components: {},
   setup() {
     const storeBody = useBodyStore();
 
     const bgImage =
       themeMode.value !== "dark"
-        ? getAssetPath("media/auth/bg1.jpg")
+        ? getAssetPath("media/auth/BG1-01jpg.jpg")
         : getAssetPath("media/auth/bg1-dark.jpg");
 
     onMounted(() => {

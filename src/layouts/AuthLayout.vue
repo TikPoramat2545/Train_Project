@@ -40,22 +40,22 @@
     >
       <!--begin::Content-->
       <div
-        class="d-flex flex-column flex-center py-7 py-lg-15 px-5 px-md-15 w-100"
+        class="d-flex flex-column flex-center py-7 py-lg-15 px-5 px-md-10 w-100"
       >
         <!--begin::Logo-->
         <router-link to="/" class="mb-0 mb-lg-12">
           <img
             alt="Logo"
-            :src="getAssetPath('media/logos/custom-1.png')"
-            class="h-60px h-lg-75px"
+            :src="getAssetPath('media/logos/logo-04.png')"
+            class="h-100px h-lg-100px"
           />
         </router-link>
         <!--end::Logo-->
 
         <!--begin::Image-->
         <img
-          class="d-none d-lg-block mx-auto w-275px w-md-50 w-xl-500px mb-10 mb-lg-20"
-          :src="getAssetPath('media/misc/auth-screens.png')"
+          class="d-none d-lg-block mx-auto w-300px w-md-50 w-xl-300px mb-10 mb-lg-20"
+          :src="getAssetPath('media/misc/meme-signin02.jpg')"
           alt=""
         />
         <!--end::Image-->
@@ -64,26 +64,25 @@
         <h1
           class="d-none d-lg-block text-white fs-2qx fw-bolder text-center mb-7"
         >
-          Fast, Efficient and Productive
+          มองหน้าหาเรื่องอ่อ?
         </h1>
         <!--end::Title-->
 
         <!--begin::Text-->
-        <div class="d-none d-lg-block text-white fs-base text-center">
-          In this kind of post,
+        <!-- <div class="d-none d-lg-block text-white fs-base text-center">
           <a href="#" class="opacity-75-hover text-warning fw-bold me-1"
-            >the blogger</a
+            >ไม่รู้ๆ</a
           >
 
           introduces a person they’ve interviewed <br />
           and provides some background information about
 
           <a href="#" class="opacity-75-hover text-warning fw-bold me-1"
-            >the interviewee</a
+            >ทำไมไม่ทัก ที่รักคอยไร?</a
           >
           and their <br />
           work following this is a transcript of the interview.
-        </div>
+        </div> -->
         <!--end::Text-->
       </div>
       <!--end::Content-->
@@ -98,6 +97,7 @@ import { getAssetPath } from "@/core/helpers/assets";
 import { defineComponent, onMounted } from "vue";
 import LayoutService from "@/core/services/LayoutService";
 import { useBodyStore } from "@/stores/body";
+
 
 export default defineComponent({
   name: "auth-layout",

@@ -1,0 +1,11 @@
+mac:38:BA:F8:48:72:3B
+ip:192.168.30.254
+username:
+link-login:http://AYW-test.wifi/login?dst=http%3A%2F%2F202.129.16.94%2F
+link-login-only:http://AYW-test.wifi/login
+link-orig:http://202.129.16.94/
+chap-id:\125
+chap-challenge:\226\171\065\123\133\302\345\044\112\170\045\067\275\177\231\177
+error:
+link-orig-esc:http%3A%2F%2F202.129.16.94%2F
+mac-esc:38%3ABA%3AF8%3A48%3A72%3A3B

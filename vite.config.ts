@@ -16,4 +16,13 @@ export default defineConfig({
   build: {
     chunkSizeWarningLimit: 3000,
   },
+  server: {
+    proxy: {
+      "/login":{
+        target: "http://AYW-test.wifi",
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
 });

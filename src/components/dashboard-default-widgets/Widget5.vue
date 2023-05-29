@@ -9,33 +9,19 @@
         )}');`"
     >
       <!--begin::Wrapper-->
-      <div class="mb-10">
-        <!--begin::Title-->
-        <div class="fs-2hx fw-bold text-gray-800 text-center mb-13">
-          <span class="me-2">
-            Try our all new Enviroment with
-            <br />
-            <span class="position-relative d-inline-block text-danger">
-              <router-link
-                to="/crafted/account/overview"
-                class="text-danger opacity-75-hover"
-                >Pro Plan</router-link
-              >
-              <!--begin::Separator-->
-              <span
-                class="position-absolute opacity-15 bottom-0 start-0 border-4 border-danger border-bottom w-100"
-              ></span>
-              <!--end::Separator-->
-            </span> </span
-          >for Free
-        </div>
-        <!--end::Title-->
+      <div class="mb-10" id = "app">
 
-        <!--begin::Action-->
-        <div class="text-center">
-          <a href="#" class="btn btn-sm btn-dark fw-bold"> Upgrade Now </a>
+        <div class="fs-2hxv fw-bold text-gray-800 text-center mb-13">
+          <span class="me-2">
+            <h1 style="font-size: large;"><br>Hello!!,Partner<br></h1>
+              <hr>
+            <h1 style="font-size: large;"><br>Connection is successfully!<br></h1>
+              <hr>
+            <h4 style="font-size: large;"><br> IP address is 192.168.xx.xx</h4>
+              <hr>
+          </span>
         </div>
-        <!--begin::Action-->
+
       </div>
       <!--begin::Wrapper-->
 
@@ -58,7 +44,10 @@
 
 <script lang="ts">
 import { getAssetPath } from "@/core/helpers/assets";
+import { useAuthStore } from "@/stores/auth";
 import { defineComponent } from "vue";
+import { useRouter } from "vue-router";
+import { username } from  "@/views/crafted/authentication/basic-flow/SignIn.vue";
 
 export default defineComponent({
   name: "default-dashboard-widget-5",
@@ -66,9 +55,23 @@ export default defineComponent({
   props: {
     className: { type: String, required: false },
   },
+  data() {
+    return {
+      shUsername: username,
+      time: "55m ",
+    };
+  },
+
   setup() {
+    const router = useRouter();
+    const store = useAuthStore();
+    const signOut = () => {
+      store.logout();
+      router.push({ name: "sign-in" });
+    }
     return {
       getAssetPath,
+      signOut,
     };
   },
 });

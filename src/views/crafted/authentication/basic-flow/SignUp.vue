@@ -90,7 +90,7 @@
             type="checkbox"
             name="checkbox"
             value="true"
-            v-model="agcheck"
+            v-model="checked"
           />
           <span class="form-check-label fw-semobold text-gray-700 fs-6">
             I Agree &
@@ -146,7 +146,7 @@ export default defineComponent({
       username: "",
       email: "",
       password: "",
-      agcheck: "",
+      checked: "",
 
     };
   },
@@ -154,7 +154,7 @@ export default defineComponent({
     const username = ref('');
     const email = ref('');
     const password = ref('');
-    var agcheck = ref('');
+    var checked = ref('');
   
   
 
@@ -184,32 +184,46 @@ export default defineComponent({
       const length = 10;
       const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
       let result = '';
-
+      if (checked.value) {
       for (let i = 0; i < length; i++) {
         const randomIndex = Math.floor(Math.random() * characters.length);
         result += characters.charAt(randomIndex); 
       }
+
+      password.value = result;
+    }else{
+      Swal.fire({
+            text: "Please accept Terms and conditions",
+            icon: "error",
+            buttonsStyling: false,
+            confirmButtonText: "Try again!",
+            heightAuto: false,
+            customClass: {
+              confirmButton: "btn fw-semobold btn-light-danger",
+            },
+          });
+    }
 
       const data = await ApiService.post("http://202.129.16.94:82/api/register",
       {
         username: username.value,
         email: email.value,
         password: password.value,
-        
+
       }
     ).catch((reason) => {
-      dataError = reason.response.data;
+      dataError = reason.response.data.error;
       status = reason.response.status;
-      
+      console.log(reason.response.data.error);
       });
-      console.log(typeof data === "undefined");
+      // console.log(typeof data === "undefined");
       console.log("username.value =" + username.value)
       console.log("email.value =" + email.value)
-
-      password.value = result
       console.log("password.value =" + password.value);
 
-      if (username !== null && email !== null && status == 400) {
+      
+
+      if (username !== null && email !== null && status == 200) {
         Swal.fire({
           html: "<br> Create An Account Complete! </br>  Your Password is "+ " " + password.value,
           icon: "success",
@@ -225,7 +239,7 @@ export default defineComponent({
         });
       } else {
         Swal.fire({
-          text: "Error!",
+          html: ` ${status}<br>${dataError}`,
           icon: "error",
           buttonsStyling: false,
           confirmButtonText: "Try again!",
@@ -287,7 +301,7 @@ export default defineComponent({
       username,
       email,
       registration,
-      agcheck,
+      checked,
       onSubmitRegister,
       submitButton,
       getAssetPath,
