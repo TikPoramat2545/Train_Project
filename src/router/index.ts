@@ -440,7 +440,7 @@ const routes: Array<RouteRecordRaw> = [
         path: "/password-change",
         name: "password-change",
         component: () =>
-          import("@/views/crafted/authentication/basic-flow/PasswordChange.vue"),
+          import("@/views/crafted/authentication/basic-flow/Password-change.vue"),
         meta: {
           pageTitle: "Password change",
         },

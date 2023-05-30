@@ -16,7 +16,7 @@
 
         <!--begin::Link-->
         <div class="text-gray-400 fw-semobold fs-4">
-          Enter your username,password,new email and email to change your email.
+          Enter your username,password and new email to change your email.
         </div>
         <!--end::Link-->
       </div>
@@ -30,7 +30,8 @@
           type="username"
           placeholder=""
           name="username"
-          autocomplete="off" v-model="username"
+          autocomplete="off" 
+          v-model="username"
         />
         <div class="fv-plugins-message-container">
           <div class="fv-help-block">
@@ -56,7 +57,7 @@
         </div>
       </div>
 
-      <div class="fv-row mb-10">
+      <!-- <div class="fv-row mb-10">
         <label class="form-label fw-bold text-gray-900 fs-6">Email</label>
         <Field
           class="form-control form-control-solid"
@@ -71,13 +72,13 @@
             <ErrorMessage name="email" />
           </div>
         </div>
-      </div>
+      </div> -->
 
       <div class="fv-row mb-10">
         <label class="form-label fw-bold text-gray-900 fs-6">New Email</label>
         <Field
           class="form-control form-control-solid"
-          type="email"
+          type="new_email"
           placeholder=""
           name="newemail"
           autocomplete="off" 
@@ -126,7 +127,9 @@ import { useAuthStore } from "@/stores/auth";
 import * as Yup from "yup";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 import router from "@/router";
-import { useRouter } from "vue-router";
+// import { useRouter } from "vue-router";
+import ApiService from "@/core/services/ApiService";
+
 
 export default defineComponent({
   name: "email-change",
@@ -139,13 +142,11 @@ export default defineComponent({
     return {
       username: "",
       password: "",
-      email: "",
       newemail: "",
     };
   },
   setup() {
     const username = ref('');
-    const email = ref('');
     const password = ref('');
     const newemail = ref('');
 
@@ -158,17 +159,31 @@ export default defineComponent({
     const ChangeEmail = Yup.object().shape({
       username: Yup.string().min(4).required().label("Username"),
       password: Yup.string().min(4).required().label("Password"),
-      email: Yup.string().email().required().label("Email"),
-      newemail: Yup.string().email().required().label("New Email"),  
+      newemail: Yup.string().required().label("New Email"),  
     });
 
     //Form submit function
     const onSubmitChangeEmail = async (values: any) => {
+      let dataError;
+      let status = 200;
+
+      const data = await ApiService.vueInstance.axios.patch("http://202.129.16.94:82/api/changeEmail",
+      {
+        username: username.value,
+        password: password.value,
+        new_email: newemail.value,
+
+      }
+    ).catch((reason) => {
+      dataError = reason.response.data.error;
+      status = reason.response.status;
+      console.log(reason.response.data.error);
+      });
+
       values = values as string;
-      console.log('username')
-      console.log('password')
-      console.log('email')
-      console.log('newemail')
+      console.log("username.value =" + username.value)
+      console.log("new_email.value =" + newemail.value)
+      console.log("password.value =" + password.value);
 
       // eslint-disable-next-line
       // submitButton.value!.disabled = true;
@@ -181,7 +196,7 @@ export default defineComponent({
 
       //const error = Object.values(store.errors);
 
-      if (username !== null && email !== null && password !== null && newemail !== null) {
+      if (status == 200) {
         Swal.fire({
           text: "Change An Email Complete!",
           icon: "success",
@@ -197,7 +212,7 @@ export default defineComponent({
         });
       } else {
         Swal.fire({
-          text: "error",
+          html: `Error: ${status}<br>${dataError.value}`,
           icon: "error",
           buttonsStyling: false,
           confirmButtonText: "Try again!",
@@ -215,7 +230,6 @@ export default defineComponent({
       submitButton,
       username,
       password,
-      email,
       newemail,
 
     };

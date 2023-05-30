@@ -238,10 +238,12 @@ export default defineComponent({
         }).then(function () {
           // Go to page after successfully login
           router.push({ name: "dashboard" });
-        });
+        }
+        );
+
       } else {
         Swal.fire({
-          html: ` ${status}<br>${dataError}`,
+          html: `Error: ${status}<br>${dataError}`,
           icon: "error",
           buttonsStyling: false,
           confirmButtonText: "Try again!",
