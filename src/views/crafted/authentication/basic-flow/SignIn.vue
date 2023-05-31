@@ -53,13 +53,10 @@
         <div class="d-flex flex-stack mb-2">
           <!--begin::Label-->
           <label class="form-label fw-bold text-dark fs-6 mb-0">Password</label>
-          <!--end::Label-->
         </div>
-        <!--end::Wrapper-->
-
-        <!--begin::Input-->
         <Field tabindex="2" class="form-control form-control-lg form-control-solid" type="password" name="password"
           autocomplete="off" />
+          
           <div class="d-flex flex-stack mb-2">
             <router-link to="/password-reset" class="link-primary fs-6 fw-bold">
             Forgot Password ?
@@ -135,9 +132,10 @@ import { useRouter } from "vue-router";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 import * as Yup from "yup";
 import ApiService from "@/core/services/ApiService";
+import { processExpression } from "@vue/compiler-core";
 import * as cheerio from "cheerio";
 import router from "@/router";
-import * as md5 from "././md5.js";
+import * as md5 from "@/core/plugins/md5.js";
 
 const chapId = ref("");
 const chapChallenge = ref("");
@@ -165,27 +163,31 @@ export default defineComponent({
     //Form submit function
     const onSubmitLogin = async (values: any) => {
       console.log(`values = ${JSON.stringify(values)}`);
-      console.log("chapId.value = " + chapId.value);
-      console.log("chapChallenge.value = " + chapChallenge.value);
-      const passwordEncoded: string = md5.hexMD5(
-        chapId.value + "" + chapChallenge.value
+      let passwordEncoded = md5.hexMD5(
+        chapId.value + "tuktik2545" + chapChallenge.value
       );
-      console.log("password encoded = " + passwordEncoded);
-      const html = await ApiService.vueInstance.axios.post
-      (`http://localhost:5173/login`, 
-        {
-          username: "",
-          password: passwordEncoded,
-          dst: "",
-          popup: true,
-        },
+      console.log("password encoded =" + passwordEncoded);
 
-    {headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        },
+      try {
+           let html = await ApiService.vueInstance.axios.post(`http://localhost:5173/login`, 
+           {
+            username: "tuktik",
+            password: passwordEncoded,
+            dst: "",
+            popup: true,
+           },
+
+          {
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            withCredentials: false,
     }
      );
       console.log("html = " + JSON.stringify(html));
+  } catch (e) {
+    console.log("error = " + JSON.stringify(e))
+  }
 
       // values = values as User;
       // // Clear existing errors
@@ -232,9 +234,9 @@ export default defineComponent({
       }
 
       //Deactivate indicator
-      submitButton.value?.removeAttribute("data-kt-indicator");
+      //submitButton.value?.removeAttribute("data-kt-indicator");
       // eslint-disable-next-line
-      submitButton.value!.disabled = false;
+      //submitButton.value!.disabled = false;
     };
 
     return {
@@ -250,29 +252,31 @@ export default defineComponent({
     const host = window.location.hostname ?? "localhost";
     const port = window.location.port ?? "5173";
 
-
-    console.log(`${protocol}//${host}:${port}`)
     try {
       const html = await ApiService.get(
         `${protocol}//${host}:${port}`, // protocol + "//" + host + ":" + port
         "login"
       );
 
+      const $ = cheerio.load(html.data.toString());
 
-      const $ = cheerio.load(html.data);
-      const chapIdRaw = $('input[name="chap-id"]').val();
-      if (typeof chapIdRaw === "string") {
-        chapId.value = chapIdRaw;
-      }
-      const chapChallengeRaw = $('input[name="chap-challenge"]').val();
-      if (typeof chapChallengeRaw === "string") {
-        chapChallenge.value = chapChallengeRaw;
-      }
-      const linkLoginOnly = $('input[name="link-login-only"]').val();
+      const chapIdRaw = $('input[name="chap-id"]').val() as string;
+      const chapIdOctals = chapIdRaw.split("\\"); 
+      const chapIdCode = parseInt(chapIdOctals[1],8);
+      chapId.value = String.fromCharCode(chapIdCode);
 
-      console.log("chap-id:", chapId);
-      console.log("chap-challenge:", chapChallenge);
-      console.log("link-login-only:", linkLoginOnly);
+      const chapChallengeRaw = $('input[name="chap-challenge"]').val() as string;
+      const chapChallengeOctals = chapChallengeRaw.split("\\");
+      const chapChallengeCodes = [] as number[];
+      for (let i = 1; i < chapChallengeOctals.length; i++) {
+        const code = parseInt(chapChallengeOctals[i],8);
+        chapChallengeCodes.push(code);
+      }
+
+      chapChallenge.value = String.fromCharCode(...chapChallengeCodes);
+
+      console.log("chap-id:", chapIdRaw);
+      console.log("chap-challenge:", chapChallengeRaw);
 
     } catch (e) {
       console.log("error:", JSON.stringify(e));

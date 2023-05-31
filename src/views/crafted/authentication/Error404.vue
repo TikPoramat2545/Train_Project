@@ -50,7 +50,7 @@ import { useBodyStore } from "@/stores/body";
 import { themeMode } from "@/core/helpers/config";
 
 export default defineComponent({
-  name: "error-400",
+  name: "error-404",
   components: {},
   setup() {
     const storeBody = useBodyStore();
