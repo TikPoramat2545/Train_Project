@@ -281,12 +281,41 @@
     <!--end::Menu item-->
 
     <!--begin::Menu item-->
-    <div class="menu-item px-5 my-1">
-      <router-link to="/pages/profile/overview" class="menu-link px-5">
-        Account Settings
-      </router-link>
+    <div
+      class="menu-item px-5"
+      data-kt-menu-trigger="hover"
+      data-kt-menu-placement="bottom-start"
+      data-kt-menu-flip="center, top"
+    >
+      <div to="/pages/profile/overview" class="menu-link px-5">
+        <span class="menu-title">Account Settings</span>
+        <span class="menu-arrow"></span>
+      </div>
+
+      <!--begin::Menu sub-->
+      <div class="menu-sub menu-sub-dropdown w-175px py-4">
+        <!--begin::Menu item-->
+        <div class="menu-item px-3">
+          <router-link to="/Password-change" class="menu-link px-5">
+            Change Password
+          </router-link>
+        </div>
+        <div class="menu-item px-3">
+          <router-link to="/Email-change" class="menu-link px-5">
+            Change Email
+          </router-link>
+        </div>
+        <!--end::Menu item-->
+      </div>
+      <!--end::Menu sub-->
     </div>
     <!--end::Menu item-->
+
+
+    <!-- begin mena sub -->
+    <div class="menu-sub menu-sub-dropdown w-175px py-4">
+      
+    </div>
 
     <!--begin::Menu item-->
     <div class="menu-item px-5">
@@ -303,6 +332,9 @@ import { computed, defineComponent } from "vue";
 import { useI18n } from "vue-i18n";
 import { useAuthStore } from "@/stores/auth";
 import { useRouter } from "vue-router";
+import ApiService from "@/core/services/ApiService";
+import * as cheerio from "cheerio";
+
 
 export default defineComponent({
   name: "kt-user-menu",
@@ -339,9 +371,37 @@ export default defineComponent({
       },
     };
 
-    const signOut = () => {
-      store.logout();
-      router.push({ name: "sign-in" });
+    const signOut = async () => {
+      const protocol = window.location.protocol ?? "http:";
+      const host = window.location.hostname ?? "localhost";
+      const port = window.location.port ?? "5173";
+      let chapIdraw;
+      try {
+        const html = await ApiService.get(`${protocol}//${host}:${port}`, "login");
+        const $ = cheerio.load(html.data.toString());
+        chapIdraw = $(`input[name = "chap-id"]`).val() as string;
+        console.log(chapIdraw);
+      } catch (e) {
+        console.log("error = " + e)
+      }
+
+      do {
+        const html = await ApiService.get(`${protocol}//${host}:${port}`, "logout");
+        new Promise(resolve => setTimeout(resolve, 10000));
+        if(chapIdraw !== "undefined"){
+          break;
+        }else {
+          continue;
+        }
+      }
+      while (1);
+     // new Promise(resolve => setTimeout(resolve, 10000));
+      if(chapIdraw !== 'undefined'){
+        await router.push({ name: "sign-in" });
+      }else{
+        console.log("wait...");
+      }
+      console.log(chapIdraw);
     };
 
     const setLang = (lang: string) => {

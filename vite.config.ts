@@ -23,6 +23,16 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
+      "/status":{
+        target: "http://AYW-test.wifi",
+        changeOrigin: true,
+        secure: false,
+      },
+      "/logout":{
+        target: "http://AYW-test.wifi",
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
 });

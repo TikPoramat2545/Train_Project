@@ -37,11 +37,12 @@
 
         <!--begin::Input-->
         <Field tabindex="1" class="form-control form-control-lg form-control-solid" type="text" name="username"
-          autocomplete="off" />
+          autocomplete="off" v-model="username" />
         <!--end::Input-->
         <div class="fv-plugins-message-container">
           <div class="fv-help-block">
-            <ErrorMessage name="username" />
+            <ErrorMessage name="username"
+            />
           </div>
         </div>
       </div>
@@ -55,7 +56,10 @@
           <label class="form-label fw-bold text-dark fs-6 mb-0">Password</label>
         </div>
         <Field tabindex="2" class="form-control form-control-lg form-control-solid" type="password" name="password"
-          autocomplete="off" />
+          autocomplete="off" 
+          v-model="password"
+          />
+
           
           <div class="d-flex flex-stack mb-2">
             <router-link to="/password-reset" class="link-primary fs-6 fw-bold">
@@ -140,6 +144,7 @@ import * as md5 from "@/core/plugins/md5.js";
 const chapId = ref("");
 const chapChallenge = ref("");
 
+
 export default defineComponent({
   name: "sign-in",
   components: {
@@ -147,9 +152,18 @@ export default defineComponent({
     VForm,
     ErrorMessage,
   },
+  data() {
+    return {
+      username: "",
+      password: "",
+    }
+  },
   setup() {
     const store = useAuthStore();
     const router = useRouter();
+
+    const username = ref('');
+    const password = ref('');
 
 
     const submitButton = ref<HTMLButtonElement | null>(null);
@@ -162,16 +176,18 @@ export default defineComponent({
 
     //Form submit function
     const onSubmitLogin = async (values: any) => {
+      //let errorRaw;
+
       console.log(`values = ${JSON.stringify(values)}`);
       let passwordEncoded = md5.hexMD5(
-        chapId.value + "tuktik2545" + chapChallenge.value
+        chapId.value + password.value + chapChallenge.value
       );
       console.log("password encoded =" + passwordEncoded);
 
       try {
            let html = await ApiService.vueInstance.axios.post(`http://localhost:5173/login`, 
            {
-            username: "tuktik",
+            username: username.value,
             password: passwordEncoded,
             dst: "",
             popup: true,
@@ -182,11 +198,87 @@ export default defineComponent({
               "Content-Type": "application/x-www-form-urlencoded",
             },
             withCredentials: false,
-    }
+          }
      );
-      console.log("html = " + JSON.stringify(html));
+     
+     const $ = cheerio.load(html.data.toString());
+        let errorRaw = $(`input[name = "error"]`).val() as string;
+        console.log("errorRaw = " + JSON.stringify(errorRaw));
+        if (typeof errorRaw === "undefined") {
+          const chapIdRaw = $(`input[name = "chap-id"]`).val() as string;
+          console.log("chapIdRaw = " + JSON.stringify(chapIdRaw));
+        if (typeof chapIdRaw === "undefined"){
+          Swal.fire({
+          text: "You have successfully logged in!",
+          icon: "success",
+          buttonsStyling: false,
+          confirmButtonText: "Ok, got it!",
+          heightAuto: false,
+          customClass: {
+            confirmButton: "btn fw-semobold btn-light-primary",
+          },
+        }).then(() => {
+          router.push({ name: "dashboard"});
+        });
+        } else {
+          Swal.fire({
+            html: `Error!<br>${errorRaw}`,
+            icon: "error",
+            buttonsStyling: false,
+            confirmButtonText: "Try again!",
+            heightAuto: false,
+            customClass: {
+            confirmButton: "btn fw-semobold btn-light-danger",
+          },
+        });
+        getchap();
+      }
+    } else {
+      if (errorRaw === "Accept") {
+        Swal.fire({
+            html: `Error! <br>Wrong Password`,
+            icon: "error",
+            buttonsStyling: false,
+            confirmButtonText: "Try again!",
+            heightAuto: false,
+            customClass: {
+            confirmButton: "btn fw-semobold btn-light-danger",
+          },
+        });
+        getchap();
+        console.log("chapId =" + chapId.value);
+        console.log("chapChallenge = " + chapChallenge.value);
+      } else if (errorRaw === "invalid username or password") {
+        Swal.fire({
+            html: `Error!<br>${errorRaw}`,
+            icon: "error",
+            buttonsStyling: false,
+            confirmButtonText: "Try again!",
+            heightAuto: false,
+            customClass: {
+            confirmButton: "btn fw-semobold btn-light-danger",
+          },
+        });
+        getchap();
+        console.log("chapId =" + chapId.value);
+        console.log("chapChallenge = " + chapChallenge.value);
+      } else {
+        Swal.fire({
+            html: `Error! <br>${errorRaw}`,
+            icon: "error",
+            buttonsStyling: false,
+            confirmButtonText: "Try again!",
+            heightAuto: false,
+            customClass: {
+            confirmButton: "btn fw-semobold btn-light-danger",
+          },
+        });
+        getchap();
+      }
+    } 
   } catch (e) {
-    console.log("error = " + JSON.stringify(e))
+    console.log("error:", JSON.stringify(e));
+    await router.push({ name: "400" });
   }
 
       // values = values as User;
@@ -201,37 +293,37 @@ export default defineComponent({
       // }
 
       
-      await store.login(values);
-      const error = Object.values(store.errors);
+      // await store.login(values);
+      // const error = Object.values(store.errors);
 
-      if (error.length === 0) {
-        Swal.fire({
-          text: "You have successfully logged in!",
-          icon: "success",
-          buttonsStyling: false,
-          confirmButtonText: "Ok, got it!",
-          heightAuto: false,
-          customClass: {
-            confirmButton: "btn fw-semobold btn-light-primary",
-          },
-        }).then(() => {
-          // Go to page after successfully login
-          router.push({ name: "dashboard" });
-        });
-      } else {
-        Swal.fire({
-          text: error[0] as string,
-          icon: "error",
-          buttonsStyling: false,
-          confirmButtonText: "Try again!",
-          heightAuto: false,
-          customClass: {
-            confirmButton: "btn fw-semobold btn-light-danger",
-          },
-        }).then(() => {
-          store.errors = {};
-        });
-      }
+      // if (error.length === 0) {
+      //   Swal.fire({
+      //     text: "You have successfully logged in!",
+      //     icon: "success",
+      //     buttonsStyling: false,
+      //     confirmButtonText: "Ok, got it!",
+      //     heightAuto: false,
+      //     customClass: {
+      //       confirmButton: "btn fw-semobold btn-light-primary",
+      //     },
+      //   }).then(() => {
+      //     // Go to page after successfully login
+      //     router.push({ name: "dashboard" });
+      //   });
+      // } else {
+      //   Swal.fire({
+      //     text: error[0] as string,
+      //     icon: "error",
+      //     buttonsStyling: false,
+      //     confirmButtonText: "Try again!",
+      //     heightAuto: false,
+      //     customClass: {
+      //       confirmButton: "btn fw-semobold btn-light-danger",
+      //     },
+      //   }).then(() => {
+      //     store.errors = {};
+      //   });
+      // }
 
       //Deactivate indicator
       //submitButton.value?.removeAttribute("data-kt-indicator");
@@ -244,24 +336,30 @@ export default defineComponent({
       login,
       submitButton,
       getAssetPath,
+      username,
+      password,
     };
   },
   async mounted() {
-
+    getchap();
+  }
+});
+async function getchap() {
     const protocol = window.location.protocol ?? "http:";
     const host = window.location.hostname ?? "localhost";
     const port = window.location.port ?? "5173";
 
     try {
-      const html = await ApiService.get(
-        `${protocol}//${host}:${port}`, // protocol + "//" + host + ":" + port
-        "login"
-      );
-
+      const html = await ApiService.get(`${protocol}//${host}:${port}`, "login");
+      console.log("url = "+ `${protocol}//${host}:${port}`);
       const $ = cheerio.load(html.data.toString());
-
       const chapIdRaw = $('input[name="chap-id"]').val() as string;
-      const chapIdOctals = chapIdRaw.split("\\"); 
+      console.log("chapIdRaw = " + JSON.stringify(chapIdRaw));
+      if (typeof chapIdRaw === "undefined"){
+        await router.push({ name: "dashboard"});
+        return;
+      }
+      const chapIdOctals = chapIdRaw.split("\\");
       const chapIdCode = parseInt(chapIdOctals[1],8);
       chapId.value = String.fromCharCode(chapIdCode);
 
@@ -279,11 +377,11 @@ export default defineComponent({
       console.log("chap-challenge:", chapChallengeRaw);
 
     } catch (e) {
-      console.log("error:", JSON.stringify(e));
+      console.log("error", JSON.stringify(e));
       await router.push({ name: "400" });
     }
   }
-});
 
-export const username = "Partner";
+
+export const username = "test";
 </script>
