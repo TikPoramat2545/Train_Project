@@ -23,9 +23,14 @@
             <h4 style="font-size: large;">
               IP address is {{ip}}
               <hr>
-              You're connect this network for {{ uptime }}
+              You're connect this network for {{ (() => {
+              const uptimeWithoutSecond = uptime.replace(/(\d+s)$/,"");
+              if (uptimeWithoutSecond == "") return "0m";
+              return uptimeWithoutSecond;
+              })()
+            }}
               <hr>
-              Byte in : {{ bytesin }} / Byte out : {{ bytesout }}
+              Byte in : {{ bytein }} / Byte out : {{ byteout }}
               <hr>
             </h4>
 
@@ -44,77 +49,61 @@
 </template>
 <script lang="ts" type = "module">
 import { getAssetPath } from "@/core/helpers/assets";
+import { defineComponent, ref } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import { useRouter } from "vue-router";
-import * as cheerio from "cheerio";
 import ApiService from "@/core/services/ApiService";
-import { defineComponent, ref } from "vue";
-import UserAccountMenu from "@/layouts/main-layout/menus/UserAccountMenu.vue";
+import * as cheerio from "cheerio";
 
 export default defineComponent({
   name: "default-dashboard-widget-5",
   components: {},
   data() {
     return {
-      username: "",
-      ip: "",
-      uptime: "",
-      bytesin: "",
-      bytesout: "",
-      intervalId: null
+      username: '',
+      ip: '',
+      bytein: '',
+      byteout: '',
+      uptime: '',
     };
   },
   props: {
     className: { type: String, required: false },
   },
   mounted() {
-    this.startRefreshInterval();
-    
     this.getData();
-  },
-  destroyed() {
-    this.clearRefreshInterval();
+    this.startAutoRefresh();
   },
   methods: {
-    startRefreshInterval() {
-      this.intervalId = setInterval(() => {
-        this.refreshWidget();
-      }, 60000); // Refresh every 60 seconds
-    },
-    clearRefreshInterval() {
-      clearInterval(this.intervalId);
+   async startAutoRefresh() {
+      setInterval(() => {
+        this.getData();
+      }, 60000);
+    //   for (let i = 0;i<62;i++){
+    //   await new Promise(resolve => setTimeout(resolve, 1000));
+    //     if (i === 61){
+    //       i = 0;
+    //     }
+    //   console.log(i);
+    // };
     },
     async getData() {
       const protocol = window.location.protocol ?? "http:";
       const host = window.location.hostname ?? "localhost";
       const port = window.location.port ?? "5173";
 
-      const html = await ApiService.get(`${protocol}//${host}:${port}`, "status");
+      const html = await ApiService.get(`${protocol}//${host}:${port}`, "apapi/status");
       const $ = cheerio.load(html.data.toString());
-      const APusername = $('input[name="username"]').val() as string;
-      const APip = $('input[name="ip"]').val() as string;
-      const APuptime = $('input[name="uptime"]').val() as string;
-      const APbytesin = $('input[name="bytes-in-nice"]').val() as string;
-      const APbytesout = $('input[name="bytes-out-nice"]').val() as string;
-      this.username = APusername;
-      this.ip = APip;
-      this.uptime = APuptime;
-      this.bytesin = APbytesin;
-      this.bytesout = APbytesout;
+      this.username = $(`input[name = "username"]`).val() as string;
+      this.ip = $(`input[name = "ip"]`).val() as string;
+      this.bytein = $(`input[name = "bytes-in-nice"]`).val() as string;
+      this.byteout = $(`input[name = "bytes-out-nice"]`).val() as string;
+      this.uptime = $(`input[name = "uptime"]`).val() as string;
     },
-    refreshWidget() {
-      this.getData();
-    }
   },
-
   setup() {
     const router = useRouter();
     const store = useAuthStore();
-    const username = ref('');
-    const ip = ref('');
-    const uptime = ref('');
-    const bytesin = ref('');
-    const bytesout = ref('');
     const signOut = () => {
       store.logout();
       router.push({ name: "sign-in" });
@@ -123,6 +112,9 @@ export default defineComponent({
       getAssetPath,
       signOut,
     };
+    
   },
-});
+}
+);
+
 </script>

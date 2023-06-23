@@ -2,6 +2,9 @@ import { fileURLToPath, URL } from "node:url";
 
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
+import { Server } from "node:http";
+import path from "node:path";
+import mkcert from 'vite-plugin-mkcert'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -16,23 +19,17 @@ export default defineConfig({
   build: {
     chunkSizeWarningLimit: 3000,
   },
-  server: {
-    proxy: {
-      "/login":{
+  server : {
+    proxy:{
+      "^/apapi/.*":{
         target: "http://AYW-test.wifi",
-        changeOrigin: true,
-        secure: false,
+        changeOrigin:true,
+        secure:false,
+        followRedirects:true,
+        timeout:10000,
+        rewrite:(path)=>path.replace(/^\/apapi/,""),
       },
-      "/status":{
-        target: "http://AYW-test.wifi",
-        changeOrigin: true,
-        secure: false,
-      },
-      "/logout":{
-        target: "http://AYW-test.wifi",
-        changeOrigin: true,
-        secure: false,
-      },
-    },
-  },
-});
+    }
+  }
+},
+);
